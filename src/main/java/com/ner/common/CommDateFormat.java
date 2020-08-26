@@ -3,11 +3,7 @@ package com.ner.common;
 import com.fasterxml.jackson.core.io.NumberInput;
 import org.apache.commons.lang3.time.DateUtils;
 
-import java.text.DateFormat;
-import java.text.FieldPosition;
-import java.text.ParseException;
-import java.text.ParsePosition;
-import java.text.SimpleDateFormat;
+import java.text.*;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
