@@ -16,7 +16,7 @@ public class StuServiceImpl extends ServiceImpl<StuMapper, Stu> implements StuSe
     @Override
     public Long updStu(Stu stu) {
         synchronized (this) {
-            if (null == stu.getId()) {
+            if (null == stu || null == stu.getId()) {
                 throw new BizException("参数不全");
             }
             Stu oldStu = baseMapper.selectById(stu.getId());

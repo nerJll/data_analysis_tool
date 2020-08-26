@@ -5,9 +5,7 @@ import com.ner.common.BaseController;
 import com.ner.entity.Stu;
 import com.ner.mapper.StuMapper;
 import com.ner.service.impl.StuServiceImpl;
-import com.ner.utils.DataAnalysisUtil;
 import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,12 +28,5 @@ public class StuController extends BaseController<StuServiceImpl, StuMapper, Stu
     @Override
     public ApiResult add(@RequestBody @Valid Stu entity, BeanPropertyBindingResult result) {
         return super.add(entity, result);
-    }
-
-    @GetMapping("/test")
-    public ApiResult test() {
-        String html = DataAnalysisUtil.sendGet("http://www.gzasyz.cn/");
-        System.out.println(html);
-        return ApiResult.ok();
     }
 }

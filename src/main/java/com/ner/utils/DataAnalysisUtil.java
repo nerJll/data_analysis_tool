@@ -1,88 +1,68 @@
 package com.ner.utils;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.utils.HttpClientUtils;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
+import com.ner.common.exception.BizException;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @autor jiangll
  * @date 2020/8/24
  */
 public final class DataAnalysisUtil {
-    //设置代理，模范浏览器
-    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36";
+    //天猫搜索前缀、后缀
+    private final static String TMALLURL_PREFFIX = "https://list.tmall.com/search_product.htm?q=";
+    private final static String TMALLURL_SUFFFIX = "&type=p&vmarket=&spm=875.7931836%2FB.a2227oh.d100&from=mallfp..pc_1_searchbutton";
 
-    //返回页面html代码
-    public static String sendGet(String url) {
-        //1.生成httpclient，相当于该打开一个浏览器
-        CloseableHttpClient httpClient = HttpClients.createDefault();
-        //设置请求和传输超时时间
-        RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(2000).setConnectTimeout(2000).build();
-        CloseableHttpResponse response = null;
-        String html = null;
-        //2.创建get请求，相当于在浏览器地址栏输入 网址
-        HttpGet request = new HttpGet(url);
+    //模拟点击链接获取页面html
+    private static Document getHtmlByUrl(String url) {
+        Document doc;
         try {
-            request.setHeader("User-Agent", USER_AGENT);
-            request.setConfig(requestConfig);
-            //3.执行get请求，相当于在输入地址栏后敲回车键
-            response = httpClient.execute(request);
-            //4.判断响应状态为200，进行处理
-            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                //5.获取响应内容
-                HttpEntity httpEntity = response.getEntity();
-                html = EntityUtils.toString(httpEntity, "GBK");
-            } else {
-                //TODO 如果返回状态不是200，比如404（页面不存在）等，根据情况做处理，这里略
-            }
-        } catch (ClientProtocolException e) {
-            e.printStackTrace();
+            //先获得的是整个页面的html标签页面
+            doc = Jsoup.connect(url).get();
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            //6.关闭
-            HttpClientUtils.closeQuietly(response);
-            HttpClientUtils.closeQuietly(httpClient);
+            throw new BizException("获取网页内容失败");
         }
-        return html;
+        return doc;
     }
 
-   /* private void paraseList(Document document){
-        // 根据网页标签解析源码
-        Elements elements = document.select("#resultList .el");
-        //去除表头
-        elements.remove(0);
-        for(Element element:elements){
-            Elements elements1 = element.select("span");
-            QCPage qcPage = new QCPage();
-            qcPage.set(elements1.get(0).text(),elements1.get(1).text(),elements1.get(2).text(),elements1.get(3).text(),elements1.get(4).text());
-            //将解析后的实体放入集合中
-            list.add(qcPage);
-            System.out.println(result+" : " +qcPage);
-            result+=1;
+    //天猫一级搜索（执行商品搜索）,返回商品链接列表
+    private static List<String> tmallOneLevelSearch(String keyWords) {
+        //一级搜索链接
+        String url = new StringBuilder(TMALLURL_PREFFIX)
+                .append(keyWords)
+                .append(TMALLURL_SUFFFIX)
+                .toString();
+        //产品链接，一页60
+        List<String> urlList = new ArrayList<>(60);
+        //获取页面
+        Document doc = getHtmlByUrl(url);
+        //可以通过元素的标签获取html中的特定元素
+        Elements es = doc.getElementsByClass("productImg");
+        for (Element e : es) {
+            Attributes as = e.attributes();
+            String href = as.get("href");
+            if (href.length() > 2)
+                urlList.add(href.substring(2));
         }
-        *//**
-         * 这里解析下一页地址的标签，获取下一页的Url,然后放在redis中
-         *//*
-        Elements elements1 = document.select("li[class=bk]").select("a");
-        for(Element element:elements1){
-            String url = element.attr("href");
-            if(StringUtil.isNotBlank(url)){
-                stringRedisTemplate.opsForList().leftPush("url",url);
-            }
-        }
-    }*/
+        return urlList;
+    }
+
+    //天猫二级搜索（点击商品链接）
+    private static String tmallTwoLevelSearch(String url) {
+        return null;
+    }
+
+    //天猫商品分析
+    public static void analysisTmall(String keyWords) {
+        List<String> urlList = tmallOneLevelSearch(keyWords);
+        System.out.println(urlList.toString());
+    }
 }
