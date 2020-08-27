@@ -2,8 +2,9 @@ package com.ner.utils;
 
 import com.ner.common.exception.BizException;
 import com.ner.entity.SizeAnalysis;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -57,18 +58,25 @@ public final class DataAnalysisUtil {
 
     //天猫二级搜索(详情页）
     private static List<SizeAnalysis> tmallTwoLevelSearch(String url) {
+        List<SizeAnalysis> sizeAnalyses = new ArrayList<>();
         String prodUrl = new StringBuilder(TMALL_TWOLEVEL_URLPREFFIX)
                 .append(url)
                 .toString();
         Document doc = getHtmlByUrl(prodUrl);
         //产品名称
-        Element prodName = doc.getElementsByTag("h1").get(1);
-        System.out.println(prodName.text());
-        //产品尺寸
-        Element prodSize = doc.getElementById("bd")
-                .getElementById("J_Reviews");
-        System.out.println(prodSize.text());
-        return null;
+        Elements prodNameTag = doc.getElementsByTag("h1");
+        if (prodNameTag.hasText())
+            System.out.println(prodNameTag.last().text());
+        // todo 由于天猫评论加密，后续再研究
+        //产品尺寸,类型，评论，日期，用户名，评论内容，图片地址
+        Elements prodSize = doc.getElementById("bd")
+                .getElementById("J_Detail")
+                .getElementsByClass("评论");
+        //模拟翻页
+        List<SizeAnalysis> analyses1 = tmallThreeLevelSearch(null);
+        if (CollectionUtils.isNotEmpty(analyses1))
+            sizeAnalyses.addAll(analyses1);
+        return sizeAnalyses;
     }
 
     //天猫三级查询（评论翻页）
@@ -78,8 +86,9 @@ public final class DataAnalysisUtil {
 
     public static void analysisTmall(String keyWords) {
         List<String> urlList = tmallOneLevelSearch(keyWords);
-        for (String url : urlList) {
+        /*for (String url : urlList) {
             tmallTwoLevelSearch(url);
-        }
+        }*/
+        tmallTwoLevelSearch(urlList.get(0));
     }
 }

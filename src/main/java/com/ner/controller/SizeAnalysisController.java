@@ -8,7 +8,9 @@ import com.ner.mapper.SizeAnalysisMapper;
 import com.ner.mapper.StuMapper;
 import com.ner.service.impl.SizeAnalysisServiceImpl;
 import com.ner.service.impl.StuServiceImpl;
+import com.ner.utils.DataAnalysisUtil;
 import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,4 +24,10 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/size/analysis")
 public class SizeAnalysisController extends BaseController<SizeAnalysisServiceImpl, SizeAnalysisMapper, SizeAnalysis, Long> {
+
+    @GetMapping("/tmall")
+    public ApiResult tmall() {
+        DataAnalysisUtil.analysisTmall("胸罩");
+        return ApiResult.ok();
+    }
 }
