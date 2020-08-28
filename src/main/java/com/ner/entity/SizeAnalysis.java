@@ -1,10 +1,14 @@
 package com.ner.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.ner.model.JDEvaluateCommentDTO;
+import com.ner.utils.JsonUtil;
 import lombok.Data;
 import lombok.ToString;
+import org.apache.commons.lang3.time.DateUtils;
 
 import java.io.Serializable;
+import java.text.ParseException;
 import java.util.Date;
 
 /**
@@ -48,4 +52,20 @@ public class SizeAnalysis implements Serializable {
 
     @TableField(value = "create_time", fill = FieldFill.INSERT)
     private Date createTime;
+
+    public static SizeAnalysis fromJDEvaluateCommentDTO(JDEvaluateCommentDTO dto) {
+        SizeAnalysis sizeAnalysis = new SizeAnalysis();
+        sizeAnalysis.setUserName(dto.getNickname());
+        sizeAnalysis.setProdSize(dto.getProductSize());
+        sizeAnalysis.setProdType(dto.getProductColor());
+        sizeAnalysis.setEvaluateContent(dto.getContent());
+        sizeAnalysis.setPicUrls(JsonUtil.toJson(dto.getImages()));
+        try {
+            sizeAnalysis.setEvaluateDate(DateUtils.parseDate(dto.getCreationTime(), "yyyy-MM-dd HH:mm:ss"));
+        } catch (ParseException e) {
+            System.out.println("时间转换失败");
+            e.printStackTrace();
+        }
+        return sizeAnalysis;
+    }
 }
