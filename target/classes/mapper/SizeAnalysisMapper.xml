@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ner.mapper.SizeAnalysisMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ner.entity.SizeAnalysis">
+        <id column="id" property="id"/>
+        <result column="prod_name" property="prodName"/>
+        <result column="prod_url" property="prodUrl"/>
+        <result column="prod_size" property="prodSize"/>
+        <result column="evaluate_date" property="evaluateDate"/>
+        <result column="user_name" property="userName"/>
+        <result column="evaluate_content" property="evaluateContent"/>
+        <result column="pic_urls" property="picUrls"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, prod_name, prod_url, prod_size,evaluate_date,user_name,evaluate_content,pic_urls,create_time
+    </sql>
+
+</mapper>
