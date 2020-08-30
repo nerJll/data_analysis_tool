@@ -1,12 +1,13 @@
 package com.ner.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.ner.common.Constant;
 import com.ner.common.exception.BizException;
 import com.ner.entity.SizeAnalysis;
 import com.ner.mapper.SizeAnalysisMapper;
 import com.ner.service.SizeAnalysisService;
-import com.ner.utils.IdWorker;
-import com.ner.utils.SqlUtils;
+import com.ner.utils.IdUtil;
+import com.ner.utils.SqlUtil;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -39,17 +40,29 @@ public class SizeAnalysisServiceImpl extends ServiceImpl<SizeAnalysisMapper, Siz
     public void saveJDBraEvaluateData(List<SizeAnalysis> sizeAnalysisList) {
         if (CollectionUtils.isEmpty(sizeAnalysisList)) return;
         sizeAnalysisList.forEach(sizeAnalysis -> {
-            sizeAnalysis.setId(IdWorker.id.nextId());
+            sizeAnalysis.setId(IdUtil.id.nextId());
             sizeAnalysis.setCreateTime(new Date());
         });
-        redisTemplate.opsForValue().set("jdBraEvaluateData", sizeAnalysisList, 1, TimeUnit.HOURS);
+        redisTemplate.opsForValue().set(Constant.JD_BRAEVAlUATEDATA_KEY, sizeAnalysisList, 1, TimeUnit.HOURS);
+        if (sizeAnalysisList.size() < 10000) {
+            batchInsert(sizeAnalysisList);
+        } else if (sizeAnalysisList.size() < 30000) {
+            int per = 5;
+            for (int i = 0; i < per; i++) {
+                batchInsert(sizeAnalysisList.subList(sizeAnalysisList.size() * i / per, sizeAnalysisList.size() * (i + 1) / per));
+            }
+        }
+    }
+
+    //批量存储
+    private void batchInsert(List<SizeAnalysis> sizeAnalysisList) {
         String insertSql;
         try {
-            insertSql = SqlUtils.getInsertSql(sizeAnalysisList, SizeAnalysis.class);
+            insertSql = SqlUtil.getInsertSql(sizeAnalysisList, SizeAnalysis.class);
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("转换sql失败");
-            throw new BizException("服务器内部错误:201");
+            throw new BizException("服务器内部错误：201");
         }
         jdbcTemplate.execute(insertSql);
     }

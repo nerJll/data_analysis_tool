@@ -15,7 +15,7 @@ import java.util.List;
  * @date: 18.9.4 15:25
  * @description: 批量处理返回sql
  */
-public class SqlUtils {
+public class SqlUtil {
 
     /**
      * 功能描述：返回批量插入sql语句
@@ -72,7 +72,7 @@ public class SqlUtils {
                     Long value = (Long) object;
                     sb.append(value).append(i == methods.size() - 1 ? ")" : ",");
                 } else if (type.endsWith("String")) {
-                    String value = (String) object;
+                    String value = ((String) object).replaceAll("'", "\"");
                     sb.append("'").append(value).append("'").append(i == methods.size() - 1 ? ")" : ",");
                 } else if (type.endsWith("Integer")) {
                     Integer value = (Integer) object;

@@ -5,7 +5,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 
 /**
- * <p>名称：IdWorker.java</p>
+ * <p>名称：IdUtil.java</p>
  * <p>描述：分布式自增长ID</p>
  * <pre>
  *     Twitter的 Snowflake　JAVA实现方案
@@ -22,7 +22,7 @@ import java.net.NetworkInterface;
  *
  */
 
-public class IdWorker {
+public class IdUtil {
     // 时间起始标记点，作为基准，一般取系统的最近时间（一旦确定不能变动）
     private final static long twepoch = 1598630253068L;
     // 机器标识位数
@@ -52,7 +52,7 @@ public class IdWorker {
     // 数据标识id部分
     private final long datacenterId;
 
-    public IdWorker() {
+    public IdUtil() {
         this.datacenterId = getDatacenterId(maxDatacenterId);
         this.workerId = getMaxWorkerId(datacenterId, maxWorkerId);
     }
@@ -61,7 +61,7 @@ public class IdWorker {
      * @param workerId     工作机器ID
      * @param datacenterId 序列号
      */
-    public IdWorker(long workerId, long datacenterId) {
+    public IdUtil(long workerId, long datacenterId) {
         if (workerId > maxWorkerId || workerId < 0) {
             throw new IllegalArgumentException(String.format("worker Id can't be greater than %d or less than 0", maxWorkerId));
         }
@@ -159,9 +159,9 @@ public class IdWorker {
         return id;
     }
 
-    public static final IdWorker id = new IdWorker();
+    public static final IdUtil id = new IdUtil();
 
-    //public static final  IdWorker idWorker = new IdWorker(31,31);
+    //public static final  IdUtil idWorker = new IdUtil(31,31);
     public static void main(String[] args) {
         System.out.println(System.currentTimeMillis());
         for (int i = 0; i < 10; i++) {
