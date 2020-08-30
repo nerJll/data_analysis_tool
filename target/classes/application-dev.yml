@@ -2,6 +2,9 @@ server:
   port: 9001
   servlet:
     context-path: /api
+  tomcat:
+    max-threads: 500
+    max-connections: 2000
 
 spring:
   profiles:
@@ -46,7 +49,7 @@ spring:
       time-zone: GMT+8
   mvc:
     throw-exception-if-no-handler-found: true
-    static-path-pattern: /static/**
+    static-path-pattern: /**
 
 mybatis-plus:
   mapper-locations: classpath:/mapper/**/*Mapper.xml

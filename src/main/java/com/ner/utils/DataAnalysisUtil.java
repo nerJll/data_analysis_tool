@@ -56,11 +56,15 @@ public final class DataAnalysisUtil {
     }
 
     //模拟点击链接获取页面html
-    private Document getHtmlByUrl(String url) {
-        Document doc;
+    private Document getHtmlByUrl(int type, String url) {
+        Document doc = null;
         try {
             //先获得的是整个页面的html标签页面
-            doc = Jsoup.connect(url).headers(jd_headers).get();
+            if (type == 1) {
+
+            } else if (type == 2) {
+                doc = Jsoup.connect(url).headers(jd_headers).get();
+            }
         } catch (IOException e) {
             e.printStackTrace();
             throw new BizException("获取网页内容失败，请修改cookie");
@@ -73,7 +77,7 @@ public final class DataAnalysisUtil {
         //产品链接，一页60
         List<String> urlList = new ArrayList<>(60);
         //获取页面
-        Document doc = getHtmlByUrl(url);
+        Document doc = getHtmlByUrl(type, url);
         //可以通过元素的标签获取html中的特定元素
         Elements es = doc.getElementsByClass(imgClazz);
         for (Element e : es) {
@@ -95,7 +99,7 @@ public final class DataAnalysisUtil {
     private List<SizeAnalysis> tmallTwoLevelSearch(String url) {
         List<SizeAnalysis> sizeAnalyses = new LinkedList<>();
         String prodUrl = TWOLEVEL_URLPREFFIX + url;
-        Document doc = getHtmlByUrl(prodUrl);
+        Document doc = getHtmlByUrl(1, prodUrl);
         //产品名称
         Elements prodNameTag = doc.getElementsByTag("h1");
         if (prodNameTag.hasText())
@@ -134,7 +138,7 @@ public final class DataAnalysisUtil {
         String prodUrl = TWOLEVEL_URLPREFFIX + url;
         //产品id
         String prodId = url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf("."));
-        Document doc = getHtmlByUrl(prodUrl);
+        Document doc = getHtmlByUrl(2, prodUrl);
         //产品名称
         String prodName = doc.getElementsByClass("sku-name").text();
         //产品评论分析，京东最多100页
@@ -169,7 +173,7 @@ public final class DataAnalysisUtil {
     public List<SizeAnalysis> jdTwoLevelSearch_thread(int sta, int end, String prodId, String prodName, String prodUrl) {
         List<SizeAnalysis> sizeAnalyses = new LinkedList<>();
         for (int i = sta; sta < end; sta++) {
-            Document doc1 = getHtmlByUrl(JD_EVALUATE_URLPREFFIX + prodId + JD_EVALUATE_URLMIDFIX + sta + JD_EVALUATE_URLSUFFFIX);
+            Document doc1 = getHtmlByUrl(2, JD_EVALUATE_URLPREFFIX + prodId + JD_EVALUATE_URLMIDFIX + sta + JD_EVALUATE_URLSUFFFIX);
             String html = doc1.text();
             if (StringUtils.isBlank(html)) continue;
             String jDEvaluateDTOJSON = html.substring(html.indexOf("{"), html.lastIndexOf("}") + 1);

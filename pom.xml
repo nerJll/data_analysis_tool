@@ -66,6 +66,7 @@
             <artifactId>commons-codec</artifactId>
             <version>1.12</version>
         </dependency>
+
         <!--json utils-->
         <dependency>
             <groupId>cn.hutool</groupId>
