@@ -193,42 +193,47 @@ public final class DataAnalysisUtil {
 
     //京东评论爬取
     public List<SizeAnalysis> analysisJD(String keyWords) {
-        //一级搜索链接
-        String jdOneLevelUrl = JD_ONELEVEL_URLPREFFIX + keyWords + JD_ONELEVEL_URLSUFFFIX;
-        //二级详情链接
-        List<String> urls = oneLevelSearch(jdOneLevelUrl, "p-img", 2);
-        if (CollectionUtils.isNotEmpty(urls)) {
-            if (urls.size() == 1) {
-                sizeAnalyses.addAll(jdTwoLevelSearch(urls.get(0)));
-            } else {
-                //多线程处理评论
+        //总共分析几页数据
+        int page = 1;
+        while (page < 3) {
+            //一级搜索链接
+            String jdOneLevelUrl = JD_ONELEVEL_URLPREFFIX + keyWords + JD_ONELEVEL_URLSUFFFIX;
+            List<String> urls = oneLevelSearch(jdOneLevelUrl, "p-img", 2);
+            //二级详情链接
+            if (CollectionUtils.isNotEmpty(urls)) {
+                if (urls.size() == 1) {
+                    sizeAnalyses.addAll(jdTwoLevelSearch(urls.get(0)));
+                } else {
+                    //多线程处理评论
 //                JDProdDetailInfoSpider jdpdis1 = new JDProdDetailInfoSpider(urls.subList(0, urls.size() / 2));
 //                JDProdDetailInfoSpider jdpdis2 = new JDProdDetailInfoSpider(urls.subList(urls.size() / 2, urls.size()));
-                int size = 10, pageSize = 30 / size;
-                JDProdDetailInfoSpider[] jpdpiss = new JDProdDetailInfoSpider[size];
-                List<Thread> ts = new ArrayList<>(size);
-                for (int i = 0; i < 10; i++) {
-                    JDProdDetailInfoSpider jdpdis = new JDProdDetailInfoSpider(urls.subList(i * pageSize, (i + 1) * pageSize));
-                    Thread t = new Thread(jdpdis);
-                    t.start();
-                    jpdpiss[i] = jdpdis;
-                    ts.add(t);
-                }
-                synchronized (sizeAnalyses) {
-                    try {
-                        for (int i = 0; i < size; i++) {
-                            ts.get(i).join();
+                    int size = 10, pageSize = 30 / size;
+                    JDProdDetailInfoSpider[] jpdpiss = new JDProdDetailInfoSpider[size];
+                    List<Thread> ts = new ArrayList<>(size);
+                    for (int i = 0; i < 10; i++) {
+                        JDProdDetailInfoSpider jdpdis = new JDProdDetailInfoSpider(urls.subList(i * pageSize, (i + 1) * pageSize));
+                        Thread t = new Thread(jdpdis);
+                        t.start();
+                        jpdpiss[i] = jdpdis;
+                        ts.add(t);
+                    }
+                    synchronized (sizeAnalyses) {
+                        try {
+                            for (int i = 0; i < size; i++) {
+                                ts.get(i).join();
+                            }
+                        } catch (InterruptedException e) {
+                            System.out.println("线程出错");
+                            e.printStackTrace();
+                            throw new BizException("服务器内部错误：202");
                         }
-                    } catch (InterruptedException e) {
-                        System.out.println("线程出错");
-                        e.printStackTrace();
-                        throw new BizException("服务器内部错误：202");
+                    }
+                    for (int i = 0; i < size; i++) {
+                        sizeAnalyses.addAll(jpdpiss[i].getSizeAnalyses());
                     }
                 }
-                for (int i = 0; i < size; i++) {
-                    sizeAnalyses.addAll(jpdpiss[i].getSizeAnalyses());
-                }
             }
+            page++;
         }
         sizeAnalyses = new ArrayList<>(sizeAnalyses);
         return sizeAnalyses;

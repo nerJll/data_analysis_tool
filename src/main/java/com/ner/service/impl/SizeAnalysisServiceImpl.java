@@ -5,6 +5,7 @@ import com.ner.common.Constant;
 import com.ner.common.exception.BizException;
 import com.ner.entity.SizeAnalysis;
 import com.ner.mapper.SizeAnalysisMapper;
+import com.ner.model.BraAnalysisDTO;
 import com.ner.service.SizeAnalysisService;
 import com.ner.utils.IdUtil;
 import com.ner.utils.SqlUtil;
@@ -15,8 +16,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -35,6 +35,23 @@ public class SizeAnalysisServiceImpl extends ServiceImpl<SizeAnalysisMapper, Siz
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    //分析bra数据
+    public Map<String, Map> braAnalysis(Map<String, String> param) {
+        BraAnalysisDTO baDto = (BraAnalysisDTO) redisTemplate.opsForValue().get(Constant.BRA_ANALYSIS_KEY);
+        if (baDto == null) {
+            baDto = baseMapper.braAnalysis(param);
+            redisTemplate.opsForValue().set(Constant.BRA_ANALYSIS_KEY, baDto, 2, TimeUnit.HOURS);
+        }
+        //饼状图数据
+        Map<String, Object> cake = new HashMap<>(3);
+        cake.put("title", "京东bra罩杯分析");
+        cake.put("leData", Arrays.asList("A杯", "B杯", "C杯", "D杯", "E杯"));
+        cake.put("sData", Arrays.asList(baDto.getACup(), baDto.getBCup(), baDto.getCCup(), baDto.getDCup(), baDto.getECup()));
+        Map<String, Map> result = new HashMap<>(1);
+        result.put("cake", cake);
+        return result;
+    }
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void saveJDBraEvaluateData(List<SizeAnalysis> sizeAnalysisList) {
@@ -43,7 +60,7 @@ public class SizeAnalysisServiceImpl extends ServiceImpl<SizeAnalysisMapper, Siz
             sizeAnalysis.setId(IdUtil.id.nextId());
             sizeAnalysis.setCreateTime(new Date());
         });
-        redisTemplate.opsForValue().set(Constant.JD_BRAEVAlUATEDATA_KEY, sizeAnalysisList, 1, TimeUnit.HOURS);
+//        redisTemplate.opsForValue().set(Constant.JD_BRAEVAlUATEDATA_KEY, sizeAnalysisList, 1, TimeUnit.HOURS);
         if (sizeAnalysisList.size() < 10000) {
             batchInsert(sizeAnalysisList);
         } else if (sizeAnalysisList.size() < 30000) {

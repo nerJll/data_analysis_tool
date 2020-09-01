@@ -19,4 +19,15 @@
         id, prod_name, prod_url, prod_size,evaluate_date,user_name,evaluate_content,pic_urls,create_time
     </sql>
 
+    <select id="braAnalysis" resultType="com.ner.model.BraAnalysisDTO">
+        SELECT
+            SUM(IF(LOCATE('A',a.prod_size)>0,1,0)) AS 'ACup',
+            SUM(IF(LOCATE('B',a.prod_size)>0,1,0)) AS 'BCup',
+            SUM(IF(LOCATE('C',a.prod_size)>0,1,0)) AS 'CCup',
+            SUM(IF(LOCATE('D',a.prod_size)>0,1,0)) AS 'DCup',
+            SUM(IF(LOCATE('E',a.prod_size)>0,1,0)) AS 'ECup'
+        FROM size_analysis a
+        WHERE 1=1
+    </select>
+
 </mapper>

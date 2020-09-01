@@ -8,4 +8,5 @@ package com.ner.common;
  */
 public final class Constant {
     public static final String JD_BRAEVAlUATEDATA_KEY = "jd:braEvaluateData";
+    public static final String BRA_ANALYSIS_KEY = "bra:analysis";
 }
