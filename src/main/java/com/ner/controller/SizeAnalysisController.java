@@ -27,6 +27,7 @@ public class SizeAnalysisController extends BaseController<SizeAnalysisServiceIm
         this.redisTemplate = redisTemplate;
     }
 
+    //首页数据
     @GetMapping("/index")
     public ApiResult index(@RequestParam(required = false) Map<String, String> param) {
         return ApiResult.okData(service.braAnalysis(param));
