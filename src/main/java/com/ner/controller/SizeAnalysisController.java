@@ -40,6 +40,7 @@ public class SizeAnalysisController extends BaseController<SizeAnalysisServiceIm
         return ApiResult.ok();
     }
 
+    //爬取数据
     @GetMapping("/bra")
     public ApiResult bra() {
         List<SizeAnalysis> sizeAnalysisList = new DataAnalysisUtil().analysisJD("胸罩");

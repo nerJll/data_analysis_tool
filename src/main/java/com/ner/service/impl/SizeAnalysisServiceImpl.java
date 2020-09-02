@@ -68,6 +68,16 @@ public class SizeAnalysisServiceImpl extends ServiceImpl<SizeAnalysisMapper, Siz
             for (int i = 0; i < per; i++) {
                 batchInsert(sizeAnalysisList.subList(sizeAnalysisList.size() * i / per, sizeAnalysisList.size() * (i + 1) / per));
             }
+        } else if (sizeAnalysisList.size() < 60000) {
+            int per = 10;
+            for (int i = 0; i < per; i++) {
+                batchInsert(sizeAnalysisList.subList(sizeAnalysisList.size() * i / per, sizeAnalysisList.size() * (i + 1) / per));
+            }
+        }else if (sizeAnalysisList.size() < 90000) {
+            int per = 15;
+            for (int i = 0; i < per; i++) {
+                batchInsert(sizeAnalysisList.subList(sizeAnalysisList.size() * i / per, sizeAnalysisList.size() * (i + 1) / per));
+            }
         }
     }
 

@@ -195,7 +195,7 @@ public final class DataAnalysisUtil {
     public List<SizeAnalysis> analysisJD(String keyWords) {
         //总共分析几页数据
         int page = 1;
-        while (page < 3) {
+        while (page < 5) {
             //一级搜索链接
             String jdOneLevelUrl = JD_ONELEVEL_URLPREFFIX + keyWords + JD_ONELEVEL_URLSUFFFIX;
             List<String> urls = oneLevelSearch(jdOneLevelUrl, "p-img", 2);
